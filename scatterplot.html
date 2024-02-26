@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tone"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<button class="w3-bar-item w3-button" onclick="openPage('Home', this)">Info</button>
+<button class="w3-bar-item w3-button" onclick="openPage('News', this)" id="defaultOpen">Map</button>
+<button class="w3-bar-item w3-button" onclick="openPage('Songs', this)">Songs</button>
+<button class="w3-bar-item w3-button" onclick="openPage('Acknowledgements', this)">Acknowledgements</button>
+
+<style>body {
+
+
+background-color: white;
+}</style>
+
+
+<div id="Home" class="tabcontent">
+  <h3>Home</h3>
+  <p>Home is where the heart is..</p>
+</div>
+
+<div id="News" class="tabcontent"></div>
+
+<div class="w3-dropdown-hover w3-right">
+  <button class="w3-button">Dropdown</button>
+  <div class="w3-dropdown-content w3-bar-block w3-border" style="right:0">
+    <a href="#" class="w3-bar-item w3-button">Link 1</a>
+    <a href="#" class="w3-bar-item w3-button">Link 2</a>
+    <a href="#" class="w3-bar-item w3-button">Link 3</a>
+  </div>
+</div>
+
+<script>
+  // Function to switch between tabs
+  var newsGraphRendered = false;
+  var torgraphrendered = false;
+  function rgbToHex(r, g, b) {
+  return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+  }
+  function openPage(pageName, elmnt, color) {
+    var i, tabcontent, tablinks;
+
+    // Hide all tab content
+    tabcontent = document.getElementsByClassName('tabcontent');
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = 'none';
+    }
+
+    // Deactivate all tab links
+    tablinks = document.getElementsByClassName('tablink');
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].style.backgroundColor = '';
+    }
+
+    // Show the selected tab content and mark the tab link as active
+    document.getElementById(pageName).style.display = 'block';
+    elmnt.style.backgroundColor = color;
+
+    // If the News tab is opened, render the D3.js graph
+    if (pageName === 'News' && !newsGraphRendered) {
+      renderGraph();
+      newsGraphRendered = true;
+    }
+    if (pageName === 'Songs' && !torgraphrendered) {
+
+      //const scene = new THREE.Scene();
+      //const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+      //const renderer = new THREE.WebGLRenderer();
+      //renderer.setSize( window.innerWidth, window.innerHeight );
+      //document.body.appendChild( renderer.domElement );
+
+      //const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+      //const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      //const cube = new THREE.Mesh( geometry, material );
+
+      //scene.add( cube );
+//
+      //camera.position.z = 5;
+
+      //function animate() {
+        //requestAnimationFrame( animate );
+        //renderer.render( scene, camera );
+      //}
+      //animate();
+      //torgraphrendered = true;
+    }
+
+  }
+  
+
+  // Set the loop to start at time 0
+  
+
+  // D3.js code for rendering the graph
+  function renderGraph() {
+    var margin = {top: 0, right: 0, bottom: 0, left: 0},
+        width = 900 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+
+    var svg = d3.select("#News")
+            
+          .append("g")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .call(d3.zoom().on("zoom", function () {
+              svg.attr("transform", d3.event.transform)
+            }))
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add a rect for background
+    svg.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("height", height)
+      .attr("width", width)
+      .style("fill", "EBEBEB");
+
+    // Read the data
+    d3.csv("https://raw.githubusercontent.com/buildercatninja/EveryIntervalcsv/main/EIAOUMAP.csv", function(data) {
+      
+      // Add X axis
+      var x = d3.scaleLinear()
+        .domain([-2.5, 12.5])
+        .range([0, width]);
+      svg.append("g")
+      //  .attr("transform", "translate(0," + height + ")")
+      //  .call(d3.axisBottom(x));
+
+      // Add Y axis
+      var y = d3.scaleLinear()
+        .domain([0, 10])
+        .range([height, 0]);
+      svg.append("g")
+      //  .call(d3.axisLeft(y));
+
+      // Add a tooltip div.
+      var tooltip = d3.select("#my_dataviz")
+        .append("div")
+        .style("bottom",10)
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("position","fixed")
+        .style("bottom","10px")
+        
+
+      // A function that changes the tooltip when the user hovers over a point.
+      var mouseover = function(d) {
+        tooltip.style("opacity", 1);
+        //const synth = new Tone.Synth().toDestination();
+        //synth.triggerAttackRelease("C4", "8n");
+      };
+
+      var mousemove = function(d) {
+        tooltip
+          
+          .html(d.Title + " - " + d.Artist + ", " + d.Genre + " (" + d.x + "," + d.y + ")")     
+      };
+
+      
+
+      // A function that changes the tooltip when leaving a point.
+      var mouseleave = function(d) {
+        //tooltip.transition().duration(2000).style("opacity", 0);
+      };
+
+      // Add dots
+
+
+      svg.append('g')
+        .selectAll("dot")
+        .data(data)
+        .enter()
+        .append("circle")
+          .attr("cx", function(d) { return x(d.x); })
+          .attr("cy", function(d) { return y(d.y); })
+          .attr("r", 1.2)
+          .style("fill", function(d) { return rgbToHex(d.r*255,d.g*255,d.b*255); })
+          .style("opacity", 1)
+        .on("mouseover", mouseover)
+        .on("mousemove", function(event, d) { mousemove(event, d); })
+
+        .on("mouseleave", mouseleave);
+    });
+    
+
+  }
+  document.getElementById("defaultOpen").click();
+</script>
+
+
+
+<div id="Songs" class="tabcontent"></div>
+
+<script>
+
+
+//const geometry = new THREE.TorusGeometry( 10, 3, 16, 100 ); 
+//const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
+//const torus = new THREE.Mesh( geometry, material ); scene.add( torus );
+
+
+
+
+
+</script>
+
+<div id="Acknowledgements" class="tabcontent"></div>
+
+
+</html>
